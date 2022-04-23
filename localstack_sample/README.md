@@ -1,23 +1,37 @@
 # Welcome to your CDK JavaScript project
 
+Demonstrates a CDK app with an instance of a stack (`LocalstackSampleStack`)
+which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+
 This was created by installing [cdklocal](https://github.com/localstack/aws-cdk-local)
 then running `cdklocal init sample-app --language=javascript`.
 
+## Required software
+- docker
+- aws cli
+- node
+
 ## Quick start
+```sh
+npm i
+npm test
+cdk synth > sample.yml  # output cloudformation
+./start-localstack
 
+# deploy
+aws --endpoint-url=http://localhost:4566 cloudformation deploy \
+  --template-file sample.yml \
+  --stack-name sample \
+  --region ap-southeast-2
 
-## Blurb that came with this app
+# list resources
+aws --endpoint-url=http://localhost:4566 cloudformation list-stacks
+aws --endpoint-url=http://localhost:4566 sns list-topics
 
-You should explore the contents of this project. It demonstrates a CDK app with
-an instance of a stack (`LocalstackSampleStack`) which contains an Amazon SQS
-queue that is subscribed to an Amazon SNS topic.
+# delete resources
+aws --endpoint-url=http://localhost:4566 cloudformation delete-stack --stack-name sample
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app. The build
-step is not required when using JavaScript.
-
-## Useful commands
-
-* `npm run test`         perform the jest unit tests
-* `cdk deploy`           deploy this stack to your default AWS account/region
-* `cdk diff`             compare deployed stack with current state
-* `cdk synth`            emits the synthesized CloudFormation template
+# doesn't work
+cdklocal bootstrap aws://000000000000/ap-southeast-2  # fails to create stack, dunno why
+cdklocal deploy  # requires bootstrap
+```

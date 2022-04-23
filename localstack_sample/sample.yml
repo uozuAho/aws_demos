@@ -1,0 +1,145 @@
+Resources:
+  LocalstackSampleQueue2464A45B:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 300
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: LocalstackSampleStack/LocalstackSampleQueue/Resource
+  LocalstackSampleQueuePolicy73AA731C:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: sqs:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn:
+                  Ref: LocalstackSampleTopic7C5C1854
+            Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Resource:
+              Fn::GetAtt:
+                - LocalstackSampleQueue2464A45B
+                - Arn
+        Version: "2012-10-17"
+      Queues:
+        - Ref: LocalstackSampleQueue2464A45B
+    Metadata:
+      aws:cdk:path: LocalstackSampleStack/LocalstackSampleQueue/Policy/Resource
+  LocalstackSampleQueueLocalstackSampleStackLocalstackSampleTopicF950061D823F9D71:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: sqs
+      TopicArn:
+        Ref: LocalstackSampleTopic7C5C1854
+      Endpoint:
+        Fn::GetAtt:
+          - LocalstackSampleQueue2464A45B
+          - Arn
+    Metadata:
+      aws:cdk:path: LocalstackSampleStack/LocalstackSampleQueue/LocalstackSampleStackLocalstackSampleTopicF950061D/Resource
+  LocalstackSampleTopic7C5C1854:
+    Type: AWS::SNS::Topic
+    Metadata:
+      aws:cdk:path: LocalstackSampleStack/LocalstackSampleTopic/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/1WNQQrCMBBFz9J9MpIKXqAX0Na9tEmEaWtSM4kiIXe3SUBwM///x4NpoRUgmvFNXKqFrzhBHPwoF7ajW6QnQbwEHTTr7qaWcs92Rfn5wToTI7P7Q5hIOtw8WpONv321G8pMS0kp116TDU6WH501CrOZmLFKw0yHlziBOELbzITIXTAeHxr6ml/SWRbLwQAAAA==
+    Metadata:
+      aws:cdk:path: LocalstackSampleStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+
