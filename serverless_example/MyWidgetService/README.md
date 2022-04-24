@@ -12,7 +12,7 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
   - possibly related:
     - https://github.com/localstack/localstack/issues/2957
     - https://stackoverflow.com/questions/63793394/localstack-on-docker-with-net-s3-sdk-throws-the-aws-access-key-id-you-provided
-- how to get the URL of the deployed api
+- finish tute. up to "Add the individual widget functions"
 
 ## Required software
 - docker (for localstack)
@@ -40,6 +40,13 @@ When visited, the response should be something like `widgets: []`.
 
 ## Useful commands
 
+https://hvmvmrqbpk.execute-api.localhost.localstack.cloud:4566/prod/
+
+* `aws [--endpoint-url=http://localhost:4566] apigateway get-rest-apis`
+  * Get rest APIs. APIs can be accessed at
+    * AWS: https://{API ID}.execute-api.{region}.amazonaws.com/prod/
+    * localstack: https://{API ID}.execute-api.localhost.localstack.cloud:4566/prod/
+  * see https://docs.aws.amazon.com/cli/latest/reference/apigateway/get-rest-api.html
 * `npm run build`   compile typescript to js
 * `npm run watch`   watch for changes and compile
 * `npm run test`    perform the jest unit tests
