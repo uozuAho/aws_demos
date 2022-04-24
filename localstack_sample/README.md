@@ -1,7 +1,10 @@
-# Welcome to your CDK JavaScript project
+# Localstack sample app, built with CDK
 
 Demonstrates a CDK app with an instance of a stack (`LocalstackSampleStack`)
 which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+
+Not fully functional: bootstrapping doesn't work, and there's no easy way to
+interact with the deployed stack.
 
 This was created by installing [cdklocal](https://github.com/localstack/aws-cdk-local)
 then running `cdklocal init sample-app --language=javascript`.
