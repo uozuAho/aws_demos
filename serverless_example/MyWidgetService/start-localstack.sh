@@ -1,9 +1,9 @@
 #!/bin/bash
 
 docker run --pull=always --rm -it \
-  -v '//var//run//docker.sock:/var/run/docker.sock' \
   -p 4566:4566 -p 4571:4571 \
   localstack/localstack
+  # -v '//var//run//docker.sock:/var/run/docker.sock' \
 
 # Explanation of (some) options:
 #
