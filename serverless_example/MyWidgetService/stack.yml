@@ -1,0 +1,331 @@
+Resources:
+  WidgetsWidgetStore0ED7FDB7:
+    Type: AWS::S3::Bucket
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/WidgetStore/Resource
+  WidgetsWidgetHandlerServiceRole8C2B589C:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/WidgetHandler/ServiceRole/Resource
+  WidgetsWidgetHandlerServiceRoleDefaultPolicyA8E097C8:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:Abort*
+              - s3:DeleteObject*
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - WidgetsWidgetStore0ED7FDB7
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - WidgetsWidgetStore0ED7FDB7
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: WidgetsWidgetHandlerServiceRoleDefaultPolicyA8E097C8
+      Roles:
+        - Ref: WidgetsWidgetHandlerServiceRole8C2B589C
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/WidgetHandler/ServiceRole/DefaultPolicy/Resource
+  WidgetsWidgetHandler1BC9DB34:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+        S3Key: 086b88b51f8713e88feb6736b8168e2fa72f0ed5f684dac54cdc0367f6d684c2.zip
+      Role:
+        Fn::GetAtt:
+          - WidgetsWidgetHandlerServiceRole8C2B589C
+          - Arn
+      Environment:
+        Variables:
+          BUCKET:
+            Ref: WidgetsWidgetStore0ED7FDB7
+      Handler: widgets.main
+      Runtime: nodejs14.x
+    DependsOn:
+      - WidgetsWidgetHandlerServiceRoleDefaultPolicyA8E097C8
+      - WidgetsWidgetHandlerServiceRole8C2B589C
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/WidgetHandler/Resource
+      aws:asset:path: asset.086b88b51f8713e88feb6736b8168e2fa72f0ed5f684dac54cdc0367f6d684c2
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  Widgetswidgetsapi72353315:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: This service serves widgets.
+      Name: Widget Service
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/widgets-api/Resource
+  WidgetswidgetsapiCloudWatchRole8C2A5801:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/widgets-api/CloudWatchRole/Resource
+  WidgetswidgetsapiAccountDA847A77:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+          - WidgetswidgetsapiCloudWatchRole8C2A5801
+          - Arn
+    DependsOn:
+      - Widgetswidgetsapi72353315
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/widgets-api/Account
+  WidgetswidgetsapiDeployment406A9BD65d7c17b9a2a931c608315636705b0177:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: Widgetswidgetsapi72353315
+      Description: Automatically created by the RestApi construct
+    DependsOn:
+      - WidgetswidgetsapiGET2086C825
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/widgets-api/Deployment/Resource
+  WidgetswidgetsapiDeploymentStageprod0D8CD1B7:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId:
+        Ref: Widgetswidgetsapi72353315
+      DeploymentId:
+        Ref: WidgetswidgetsapiDeployment406A9BD65d7c17b9a2a931c608315636705b0177
+      StageName: prod
+    DependsOn:
+      - WidgetswidgetsapiAccountDA847A77
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/widgets-api/DeploymentStage.prod/Resource
+  WidgetswidgetsapiGETApiPermissionMyWidgetServiceStackWidgetswidgetsapi6BAE39EFGETFA317FE0:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - WidgetsWidgetHandler1BC9DB34
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: Widgetswidgetsapi72353315
+            - /
+            - Ref: WidgetswidgetsapiDeploymentStageprod0D8CD1B7
+            - /GET/
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/widgets-api/Default/GET/ApiPermission.MyWidgetServiceStackWidgetswidgetsapi6BAE39EF.GET..
+  WidgetswidgetsapiGETApiPermissionTestMyWidgetServiceStackWidgetswidgetsapi6BAE39EFGETD6697AB5:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - WidgetsWidgetHandler1BC9DB34
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: Widgetswidgetsapi72353315
+            - /test-invoke-stage/GET/
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/widgets-api/Default/GET/ApiPermission.Test.MyWidgetServiceStackWidgetswidgetsapi6BAE39EF.GET..
+  WidgetswidgetsapiGET2086C825:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Fn::GetAtt:
+          - Widgetswidgetsapi72353315
+          - RootResourceId
+      RestApiId:
+        Ref: Widgetswidgetsapi72353315
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        RequestTemplates:
+          application/json: '{ "statusCode": "200" }'
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - WidgetsWidgetHandler1BC9DB34
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/Widgets/widgets-api/Default/GET/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/02P3W6DMAyFn6X3wRUg7Z522t20qnuAKg0ecwkJws4qhHj3JqHSenU+/xwdu4KqhHKn71yYti8sXWH5Fm16FVuXhWtYDsH0KOr44560yUEzrsrq4dpqWD6CM0LepbVXPuE0EHOsVkV6gOXsLaZB1pO3ZOa8l2lVXF80MwpDk0TpkToteNdztCJLM1J2/2NjjA9O1DuO1s8DunzqSxXf6XLkBtHqw2Qw3a8+UX59m4YbravKuWmVXJcGX0HGIM/Q7Ex89K4lyW853yLceP9XvkFZQ7W7MVExxZtoQDhv+gASHiMGaAEAAA==
+    Metadata:
+      aws:cdk:path: MyWidgetServiceStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Outputs:
+  WidgetswidgetsapiEndpoint5B785C68:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: Widgetswidgetsapi72353315
+          - .execute-api.
+          - Ref: AWS::Region
+          - "."
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: WidgetswidgetsapiDeploymentStageprod0D8CD1B7
+          - /
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+
