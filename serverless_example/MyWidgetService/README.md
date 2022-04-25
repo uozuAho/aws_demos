@@ -5,10 +5,12 @@ following https://docs.aws.amazon.com/cdk/v2/guide/serverless_example.html
 ## todo
 - localstack: fix key error in lambda
   - error response from api: "The AWS Access Key Id you provided does not exist in our records"
+    - probably this? https://docs.localstack.cloud/tools/local-endpoint-injection/
     - possibly related:
       - https://github.com/localstack/localstack/issues/2957
       - https://stackoverflow.com/questions/63793394/localstack-on-docker-with-net-s3-sdk-throws-the-aws-access-key-id-you-provided
 - finish tute. up to "Add the individual widget functions"
+- how to run widget service locally, with other services in localstack/AWS?
 
 ## Required software
 - docker (for localstack)
