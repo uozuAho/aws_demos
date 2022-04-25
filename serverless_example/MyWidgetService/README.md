@@ -2,19 +2,12 @@
 
 following https://docs.aws.amazon.com/cdk/v2/guide/serverless_example.html
 
-This is a blank project for CDK development with TypeScript.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
 ## todo
 - localstack: fix key error in lambda
-  - use latest s3 client: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-s3/classes/listobjectscommand.html
-    - include node modules in deployed code: https://github.com/aws-samples/aws-cdk-examples/issues/110
-  - still got the same problem? error response from api: "The AWS Access Key Id you provided does not exist in our records"
+  - error response from api: "The AWS Access Key Id you provided does not exist in our records"
     - possibly related:
       - https://github.com/localstack/localstack/issues/2957
       - https://stackoverflow.com/questions/63793394/localstack-on-docker-with-net-s3-sdk-throws-the-aws-access-key-id-you-provided
-- docker lambda executor now not required since deploying node modules with lambdas?
 - finish tute. up to "Add the individual widget functions"
 
 ## Required software
@@ -39,6 +32,12 @@ Once deployment completes, the cdk should output a link to the created API, eg.
 https://hvmvmrqbpk.execute-api.localhost.localstack.cloud:4566/prod/
 
 When visited, the response should be something like `widgets: []`.
+
+
+## Notable differences from AWS tute
+- This project installs and deploys aws-sdk as part of the lambda. This is due
+  to issues running the lambda in 'local mode' on localstack. See
+  https://github.com/aws-samples/aws-cdk-examples/issues/110
 
 
 ## Useful commands

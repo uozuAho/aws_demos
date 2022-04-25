@@ -3,7 +3,6 @@
 docker run --pull=always --rm -it \
   -p 4566:4566 -p 4571:4571 \
   localstack/localstack
-  # -v '//var//run//docker.sock:/var/run/docker.sock' \
 
 # Explanation of (some) options:
 #
@@ -12,15 +11,20 @@ docker run --pull=always --rm -it \
 #
 # Ensures you're running the latest version of localstack. Out of date images
 # may have problems with CDK features.
-#
+
+
 # --------------------------------------------------------
-# -v '//var//run//docker.sock:/var/run/docker.sock'
+# -v '//var//run//docker.sock:/var/run/docker.sock' (REMOVED)
+#
+# Removed, since lambdas can run in local mode if you deploy all their
+# dependencies (node_modules).
 #
 # Allows localstack to run lambdas in docker containers. If not provided,
-# executors run in local mode, which has issues: https://github.com/localstack/localstack/issues/5131
+# executors run in local mode, which has issues:
+# https://github.com/localstack/localstack/issues/5131
 #
-# Note that the double slashes are to prevent windows path substitution. May
-# not work on mac/linux.
+# Note that the double slashes are to prevent windows path substitution. May not
+# work on mac/linux.
 #
 # See
 # - https://docs.localstack.cloud/localstack/lambda-executors/
