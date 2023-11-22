@@ -7,20 +7,9 @@ A few cdk demo apps, built by following:
 - [cdk workshop](https://cdkworkshop.com/)
     - up to https://cdkworkshop.com/20-typescript/30-hello-cdk/300-cdk-watch.html
 
-# todo
-- finish workshop
-- draw diagrams with some cdk 2 diag app
-- any more docs needed?
-
-# later/maybe
-- testing constructs: https://cdkworkshop.com/20-typescript/70-advanced-topics/100-construct-testing.html
-- pipelines: https://cdkworkshop.com/20-typescript/70-advanced-topics/200-pipelines.html
-- remove JSON.parse from cdk-workshop/lambda/hitcounter response. This causes
-  API to return 502, but lambda logs are fine, and there's no API gateway logs.
-  What's the best way to debug this? Took me a while to figure out, eventually
-  by testing via AWS console -> API Gateway test
-
 # Quick-ish start:
+- install latest node (I used 20.x)
+- install aws cli
 - I'm using IAM Identity Center for auth. To set this up:
     - create iam identity center user + permission set for dev user
     - install the latest aws cli: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
@@ -29,9 +18,20 @@ A few cdk demo apps, built by following:
           admin permission set. Seems wrong, but it's what works. I submitted
           feedback to AWS about this.
 - install cdk globally `npm install -g aws-cdk`
-- WIP: bootstrap (create AWS resources necessary for cdk to work)
-    - `cdk bootstrap aws://ACCOUNT-NUMBER/REGION`
-    - see troubleshooting
+- `cdk bootstrap aws://ACCOUNT-NUMBER/REGION` if you haven't used CDK before in
+  your aws region
+
+Then, in any project subdirectory (hello-cdk, cdk-workshop):
+
+```sh
+npm i
+cdk ls       # list stacks
+cdk deploy
+cdk destroy
+
+# optional
+npx cdk-dia   # draw AWS infra diagram (requires graphviz)
+```
 
 # Troubleshooting
 - "The security token included in the request is invalid" on `cdk bootstrap`
@@ -39,8 +39,9 @@ A few cdk demo apps, built by following:
     - not sure why. I deleted ~/.aws/credentials and got past this error
 
 - `cdk bootstrap` fails to create resources/IAM roles
-    - make sure you're using admin access. Not sure this is recommended, but
-      poweruser doesn't have enough perms to succeed here
+    - make sure you're using an IAM user with the admin permission set. Not sure
+      this is recommended, but the poweruser permission set doesn't have enough
+      perms to succeed here.
 
 # notes
 ```sh
@@ -57,3 +58,12 @@ cdk destroy                          # delete stack(s)
 
 Note that `cdk destroy` doesn't get rid of everything. For example, cloudwatch
 logs.
+
+
+# further exercises
+- testing constructs: https://cdkworkshop.com/20-typescript/70-advanced-topics/100-construct-testing.html
+- pipelines: https://cdkworkshop.com/20-typescript/70-advanced-topics/200-pipelines.html
+- remove JSON.parse from cdk-workshop/lambda/hitcounter response. This causes
+  API to return 502, but lambda logs are fine, and there's no API gateway logs.
+  What's the best way to debug this? Took me a while to figure out, eventually
+  by testing via AWS console -> API Gateway test
