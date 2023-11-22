@@ -8,10 +8,15 @@ Following:
     - up to https://cdkworkshop.com/20-typescript/30-hello-cdk/300-cdk-watch.html
 
 # todo
-- fix curl hitcounter 502. testing via lamda console works. logs don't report error
 - finish workshop
 - draw diagrams with some cdk 2 diag app
 - any more docs needed?
+
+# later/maybe
+- remove JSON.parse from cdk-workshop/lambda/hitcounter response. This causes
+  API to return 502, but lambda logs are fine, and there's no API gateway logs.
+  What's the best way to debug this? Took me a while to figure out, eventually
+  by testing via AWS console -> API Gateway test
 
 # Quick-ish start:
 - I'm using IAM Identity Center for auth. To set this up:
@@ -43,6 +48,7 @@ cdk ls                               # list stacks
 cdk synth                            # output cfn to stdout and cdk.out/
 cdk deploy                           # deploy stack to AWS
 cdk deploy --hotswap                 # fast deploy stack to AWS (causes drift, use for dev only)
+                                     #    handy for lambda dev
 cdk diff                             # diff local stack against deployed stack
 cdk destroy                          # delete stack(s)
 ```

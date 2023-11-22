@@ -28,5 +28,5 @@ exports.handler = async function(event) {
   console.log('downstream payload:', payloadStr);
 
   // return response back to upstream caller
-  return payloadStr;
+  return JSON.parse(payloadStr);
 };

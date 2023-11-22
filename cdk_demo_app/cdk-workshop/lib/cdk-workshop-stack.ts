@@ -19,7 +19,7 @@ export class CdkWorkshopStack extends Stack {
     });
 
     new apigw.LambdaRestApi(this, 'Endpoint', {
-      handler: helloWithCounter.handler
+      handler: helloWithCounter.handler,
     });
   }
 }
