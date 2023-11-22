@@ -7,6 +7,12 @@ Following:
 - [cdk workshop](https://cdkworkshop.com/)
     - up to https://cdkworkshop.com/20-typescript/30-hello-cdk/300-cdk-watch.html
 
+# todo
+- fix curl hitcounter 502. testing via lamda console works. logs don't report error
+- finish workshop
+- draw diagrams with some cdk 2 diag app
+- any more docs needed?
+
 # Quick-ish start:
 - I'm using IAM Identity Center for auth. To set this up:
     - create iam identity center user + permission set for dev user
