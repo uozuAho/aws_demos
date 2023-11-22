@@ -5,6 +5,7 @@ Following:
 - [cdk getting started](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html)
 - [cdk hello world app](https://docs.aws.amazon.com/cdk/v2/guide/hello_world.html)
 - [cdk workshop](https://cdkworkshop.com/)
+    - up to https://cdkworkshop.com/20-typescript/30-hello-cdk/300-cdk-watch.html
 
 # Quick-ish start:
 - I'm using IAM Identity Center for auth. To set this up:
