@@ -1,6 +1,6 @@
 # CDK demo app
 
-Following:
+A few cdk demo apps, built by following:
 
 - [cdk getting started](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html)
 - [cdk hello world app](https://docs.aws.amazon.com/cdk/v2/guide/hello_world.html)
