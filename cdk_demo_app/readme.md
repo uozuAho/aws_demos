@@ -4,6 +4,7 @@ Following:
 
 - [cdk getting started](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html)
 - [cdk hello world app](https://docs.aws.amazon.com/cdk/v2/guide/hello_world.html)
+- [cdk workshop](https://cdkworkshop.com/)
 
 # Quick-ish start:
 - I'm using IAM Identity Center for auth. To set this up:
@@ -26,3 +27,14 @@ Following:
 - `cdk bootstrap` fails to create resources/IAM roles
     - make sure you're using admin access. Not sure this is recommended, but
       poweruser doesn't have enough perms to succeed here
+
+# notes
+```sh
+cdk init app --language typescript   # init cdk infra app
+npm run build                        # transpile js
+cdk ls                               # list stacks
+cdk synth                            # output cfn to stdout and cdk.out/
+cdk deploy                           # deploy stack to AWS
+cdk diff                             # diff local stack against deployed stack
+cdk destroy                          # delete stack(s)
+```
