@@ -13,6 +13,8 @@ A few cdk demo apps, built by following:
 - any more docs needed?
 
 # later/maybe
+- testing constructs: https://cdkworkshop.com/20-typescript/70-advanced-topics/100-construct-testing.html
+- pipelines: https://cdkworkshop.com/20-typescript/70-advanced-topics/200-pipelines.html
 - remove JSON.parse from cdk-workshop/lambda/hitcounter response. This causes
   API to return 502, but lambda logs are fine, and there's no API gateway logs.
   What's the best way to debug this? Took me a while to figure out, eventually
@@ -52,3 +54,6 @@ cdk deploy --hotswap                 # fast deploy stack to AWS (causes drift, u
 cdk diff                             # diff local stack against deployed stack
 cdk destroy                          # delete stack(s)
 ```
+
+Note that `cdk destroy` doesn't get rid of everything. For example, cloudwatch
+logs.
