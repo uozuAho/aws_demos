@@ -36,6 +36,7 @@ npm run build                        # transpile js
 cdk ls                               # list stacks
 cdk synth                            # output cfn to stdout and cdk.out/
 cdk deploy                           # deploy stack to AWS
+cdk deploy --hotswap                 # fast deploy stack to AWS (causes drift, use for dev only)
 cdk diff                             # diff local stack against deployed stack
 cdk destroy                          # delete stack(s)
 ```
