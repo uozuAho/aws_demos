@@ -1,16 +1,42 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as transfer from 'aws-cdk-lib/aws-transfer';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+
 
 export class TfFtpS3DemoStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    const s3Bucket = new cdk.aws_s3.Bucket(this, 'S3Bucket', {
+      bucketName: 'tf-ftp-s3-demo',
+    });
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'TfFtpS3DemoQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    const roleS3fullAccess = new cdk.aws_iam.Role(this, 's3-fullAccess', {
+      assumedBy: new cdk.aws_iam.ServicePrincipal('transfer.amazonaws.com'),
+    });
+    roleS3fullAccess.addToPolicy(new iam.PolicyStatement({
+      actions: ['s3:*'],
+      resources: [s3Bucket.bucketArn],
+    }));
+
+    const sftpServer = new transfer.CfnServer(this, 'SftpServer', {
+      protocols: ['SFTP'],
+      identityProviderType: 'SERVICE_MANAGED',
+      endpointType: 'PUBLIC',
+    });
+
+    const userSshKey = new ec2.CfnKeyPair(this, 'tf-ftp-user', {
+      keyName: 'tf-ftp-user',
+    });
+
+    new transfer.CfnUser(this, 'SftpUser', {
+      userName: 'user',
+      serverId: sftpServer.attrServerId,
+      homeDirectory: '/home/user',
+      role: roleS3fullAccess.roleArn,
+      sshPublicKeys: [userSshKey.attrKeyPairId],
+    });
   }
 }
