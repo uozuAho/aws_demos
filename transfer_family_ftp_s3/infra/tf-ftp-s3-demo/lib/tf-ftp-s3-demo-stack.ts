@@ -11,6 +11,7 @@ export class TfFtpS3DemoStack extends cdk.Stack {
 
     const s3Bucket = new cdk.aws_s3.Bucket(this, 'S3Bucket', {
       bucketName: 'tf-ftp-s3-demo',
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     const roleS3fullAccess = new cdk.aws_iam.Role(this, 's3-fullAccess', {
@@ -21,22 +22,14 @@ export class TfFtpS3DemoStack extends cdk.Stack {
       resources: [s3Bucket.bucketArn],
     }));
 
-    const sftpServer = new transfer.CfnServer(this, 'SftpServer', {
+    new transfer.CfnServer(this, 'SftpServer', {
       protocols: ['SFTP'],
       identityProviderType: 'SERVICE_MANAGED',
       endpointType: 'PUBLIC',
     });
 
-    const userSshKey = new ec2.CfnKeyPair(this, 'tf-ftp-user', {
+    new ec2.CfnKeyPair(this, 'tf-ftp-user', {
       keyName: 'tf-ftp-user',
-    });
-
-    new transfer.CfnUser(this, 'SftpUser', {
-      userName: 'user',
-      serverId: sftpServer.attrServerId,
-      homeDirectory: '/home/user',
-      role: roleS3fullAccess.roleArn,
-      sshPublicKeys: [userSshKey.attrKeyPairId],
     });
   }
 }
