@@ -22,7 +22,7 @@ export class TfFtpS3DemoStack extends cdk.Stack {
       resources: [s3Bucket.bucketArn],
     }));
 
-    new transfer.CfnServer(this, 'SftpServer', {
+    const server = new transfer.CfnServer(this, 'SftpServer', {
       protocols: ['SFTP'],
       identityProviderType: 'SERVICE_MANAGED',
       endpointType: 'PUBLIC',
@@ -31,5 +31,13 @@ export class TfFtpS3DemoStack extends cdk.Stack {
     new ec2.CfnKeyPair(this, 'tf-ftp-user', {
       keyName: 'tf-ftp-user',
     });
+
+    // const user = new transfer.CfnUser(this, 'demo-user', {
+    //   userName: 'demo-user',
+    //   serverId: server.attrServerId,
+    //   role: roleS3fullAccess.roleArn,
+    //   homeDirectory: '/home/demo-user',
+    //   sshPublicKeys: ['PUB_KEY_HERE'],
+    // });
   }
 }
