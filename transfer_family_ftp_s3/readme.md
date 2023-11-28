@@ -25,4 +25,20 @@ echo $pubkey
 # - uncomment the block of code that you pasted the public key into
 cdk diff   # ensure a user will be created
 cdk deploy
+
+# Get the endpoint of your server, eg:
+aws transfer list-servers
+aws transfer describe-server --server-id s-5288c1401ec349c6a --query "Server.EndpointDetails.Address"
+# TODO: I get null back here, why?
+# workaround: get the endpoint from aws console
+
+sftp -i private.pem demo-user@<ENDPOINT>
+# you should now be at an sftp prompt
+pwd                   # you should be at /home/demo-user
+put package.json      # add a file!
+# TODO: I get permission denied
 ```
+
+# todo
+- change iam role to s3 all permissions?
+- how to get ftp server endpoint via cli?
