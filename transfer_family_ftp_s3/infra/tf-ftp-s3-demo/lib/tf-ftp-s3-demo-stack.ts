@@ -11,6 +11,7 @@ export class TfFtpS3DemoStack extends cdk.Stack {
 
     const s3Bucket = new cdk.aws_s3.Bucket(this, 'S3Bucket', {
       bucketName: 'tf-ftp-s3-demo',
+      autoDeleteObjects: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
