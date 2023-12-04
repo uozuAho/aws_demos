@@ -21,7 +21,7 @@ export class OracleMigrateSrcStack extends cdk.Stack {
     });
 
     // db goes in a public subnet, for easier access. Don't do this at home!
-    const srcSubnetGroup = new rds.SubnetGroup(this, 'SrcSubnetGroup', {
+    const srcDbSubnetGroup = new rds.SubnetGroup(this, 'SrcSubnetGroup', {
       description: 'Subnet group for source RDS instance',
       vpc: srcVpc,
       vpcSubnets: {
@@ -30,8 +30,17 @@ export class OracleMigrateSrcStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    const tgtSubnetGroup = new rds.SubnetGroup(this, 'TgtSubnetGroup', {
+    const tgtDbSubnetGroup = new rds.SubnetGroup(this, 'TgtSubnetGroup', {
       description: 'Subnet group for target RDS instance',
+      vpc: tgtVpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PUBLIC,
+      },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const tgtDmsReplSubnetGroup = new rds.SubnetGroup(this, 'TgtDmsReplSubnetGroup', {
+      description: 'Subnet group for DMS replication instance',
       vpc: tgtVpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PUBLIC,
@@ -109,7 +118,7 @@ export class OracleMigrateSrcStack extends cdk.Stack {
         version: rds.OracleEngineVersion.VER_19_0_0_0_2023_10_R1,
       }),
       vpc: srcVpc,
-      subnetGroup: srcSubnetGroup,
+      subnetGroup: srcDbSubnetGroup,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.SMALL),
       licenseModel: rds.LicenseModel.LICENSE_INCLUDED,
       credentials: rds.Credentials.fromSecret(srcDatabaseCredentialsSecret),
@@ -123,7 +132,7 @@ export class OracleMigrateSrcStack extends cdk.Stack {
         version: rds.OracleEngineVersion.VER_19_0_0_0_2023_10_R1,
       }),
       vpc: tgtVpc,
-      subnetGroup: tgtSubnetGroup,
+      subnetGroup: tgtDbSubnetGroup,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.SMALL),
       licenseModel: rds.LicenseModel.LICENSE_INCLUDED,
       credentials: rds.Credentials.fromSecret(tgtDatabaseCredentialsSecret),
