@@ -2,6 +2,7 @@
 
 Built following this AWS tutorial:
 [Getting started with AWS Database Migration Service](https://docs.aws.amazon.com/dms/latest/userguide/CHAP_GettingStarted.html)
+    - maridb to postgres, lots of data
 
 # Abandoned
 There's too many problems with DMS, so I gave up on this one. See 'todo'
