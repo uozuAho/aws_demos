@@ -13,7 +13,7 @@ NOTE: This is a work in progress.
 
 ```sh
 aws sso login
-cd oracle-migrate-src
+cd infra/oracle-migrate-src
 npm i
 cdk deploy    # takes ~10 minutes
 . get_secrets.sh
@@ -24,6 +24,7 @@ cdk destroy
 ```
 
 # todo
+- easy mode: transfer to a DB in the same account and region
 - finish arch guide
 - draw arch
 

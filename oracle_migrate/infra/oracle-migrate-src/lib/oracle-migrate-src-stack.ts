@@ -10,47 +10,67 @@ export class OracleMigrateSrcStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const vpc = new ec2.Vpc(this, 'MyVpc', {
+    const srcVpc = new ec2.Vpc(this, 'SrcVpc', {
       availabilityZones: ['ap-southeast-2a', 'ap-southeast-2b'],
       ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
-      // defaults:
-      // createInternetGateway: true,
-      // create public and private subnets
-      // create route table
-      // create NAT gateways?
-      // see https://docs.aws.amazon.com/cdk/api/v2/python/aws_cdk.aws_ec2/Vpc.html
+    });
+
+    const tgtVpc = new ec2.Vpc(this, 'TgtVpc', {
+      availabilityZones: ['ap-southeast-2a', 'ap-southeast-2b'],
+      ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
     });
 
     // db goes in a public subnet, for easier access. Don't do this at home!
-    const subnetGroup = new rds.SubnetGroup(this, 'DBSubnetGroup', {
-      description: 'Subnet group for RDS instance',
-      vpc,
+    const srcSubnetGroup = new rds.SubnetGroup(this, 'SrcSubnetGroup', {
+      description: 'Subnet group for source RDS instance',
+      vpc: srcVpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PUBLIC,
       },
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    const securityGroup = new ec2.SecurityGroup(this, 'DBSecurityGroup', {
-      vpc,
+    const tgtSubnetGroup = new rds.SubnetGroup(this, 'TgtSubnetGroup', {
+      description: 'Subnet group for target RDS instance',
+      vpc: tgtVpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PUBLIC,
+      },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const srcSecurityGroup = new ec2.SecurityGroup(this, 'SrcDbSecurityGroup', {
+      vpc: srcVpc,
       description: 'Allow inbound access to the RDS instance',
       allowAllOutbound: true,
     });
-    securityGroup.addIngressRule(
+    srcSecurityGroup.addIngressRule(
       ec2.Peer.anyIpv4(),
       ec2.Port.tcp(1521),
       'Allow inbound access to the RDS instance'
     );
 
-    const databaseUsername = 'admin';
+    const tgtSecurityGroup = new ec2.SecurityGroup(this, 'TgtDbSecurityGroup', {
+      vpc: tgtVpc,
+      description: 'Allow inbound access to the RDS instance',
+      allowAllOutbound: true,
+    });
+    tgtSecurityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(1521),
+      'Allow inbound access to the RDS instance'
+    );
 
-    const databaseCredentialsSecret = new secretsManager.Secret(this,
-      'DBCredentialsSecret',
+    const srcDatabaseUsername = 'srcAdmin';
+    const tgtDatabaseUsername = 'tgtAdmin';
+
+    const srcDatabaseCredentialsSecret = new secretsManager.Secret(this,
+      'SrcDBCredentialsSecret',
     {
       secretName: 'oracle-migrate-src-db-credentials',
       generateSecretString: {
         secretStringTemplate: JSON.stringify({
-          username: databaseUsername,
+          username: srcDatabaseUsername,
         }),
         excludePunctuation: true,
         includeSpace: false,
@@ -59,23 +79,57 @@ export class OracleMigrateSrcStack extends cdk.Stack {
       }
     });
 
-    new ssm.StringParameter(this, 'DBCredentialsArn', {
-      parameterName: 'oracle-migrate-src-db-credentials',
-      stringValue: databaseCredentialsSecret.secretArn,
+    const tgtDatabaseCredentialsSecret = new secretsManager.Secret(this,
+      'TgtDBCredentialsSecret',
+    {
+      secretName: 'oracle-migrate-tgt-db-credentials',
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({
+          username: tgtDatabaseUsername,
+        }),
+        excludePunctuation: true,
+        includeSpace: false,
+        generateStringKey: 'password',
+        passwordLength: 20,
+      }
     });
 
-    new rds.DatabaseInstance(this, 'Database', {
+    new ssm.StringParameter(this, 'SrcDBCredentialsArn', {
+      parameterName: 'oracle-migrate-src-db-credentials',
+      stringValue: srcDatabaseCredentialsSecret.secretArn,
+    });
+
+    new ssm.StringParameter(this, 'TgtDBCredentialsArn', {
+      parameterName: 'oracle-migrate-tgt-db-credentials',
+      stringValue: srcDatabaseCredentialsSecret.secretArn,
+    });
+
+    new rds.DatabaseInstance(this, 'SourceDatabase', {
       engine: rds.DatabaseInstanceEngine.oracleSe2({
         version: rds.OracleEngineVersion.VER_19_0_0_0_2023_10_R1,
       }),
-      vpc,
-      subnetGroup: subnetGroup,
+      vpc: srcVpc,
+      subnetGroup: srcSubnetGroup,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.SMALL),
       licenseModel: rds.LicenseModel.LICENSE_INCLUDED,
-      credentials: rds.Credentials.fromSecret(databaseCredentialsSecret),
+      credentials: rds.Credentials.fromSecret(srcDatabaseCredentialsSecret),
       publiclyAccessible: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      securityGroups: [securityGroup]
+      securityGroups: [srcSecurityGroup]
+    });
+
+    new rds.DatabaseInstance(this, 'TargetDatabase', {
+      engine: rds.DatabaseInstanceEngine.oracleSe2({
+        version: rds.OracleEngineVersion.VER_19_0_0_0_2023_10_R1,
+      }),
+      vpc: tgtVpc,
+      subnetGroup: tgtSubnetGroup,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.SMALL),
+      licenseModel: rds.LicenseModel.LICENSE_INCLUDED,
+      credentials: rds.Credentials.fromSecret(tgtDatabaseCredentialsSecret),
+      publiclyAccessible: true,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      securityGroups: [tgtSecurityGroup]
     });
   }
 }
