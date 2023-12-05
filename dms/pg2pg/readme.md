@@ -10,6 +10,7 @@ Install docker, aws cli, cdk, jq.
 aws sso login
 cd infra/local
 ./init_db.sh
+./save_secrets_to_aws.sh
 cd ../dms-pg2pg
 cdk deploy
 # wait ~10 minutes
@@ -22,3 +23,5 @@ echo export RDS_PG_DMS_USER_PASSWORD=CHOOSE_A_PASSWORD > .secrets
 
 # todo
 - follow as closely as possible. Run pg locally & port forward?
+    - up to https://docs.aws.amazon.com/dms/latest/sbs/dm-postgresql-step-4.html
+- have a look at https://github.com/aws-samples/dms-cdk/tree/main
