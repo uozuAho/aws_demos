@@ -2,6 +2,8 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as rds from 'aws-cdk-lib/aws-rds';
+import * as secretsManager from 'aws-cdk-lib/aws-secretsmanager';
 
 const REGION = 'ap-southeast-2';
 
@@ -14,6 +16,9 @@ export class DmsPg2PgStack extends cdk.Stack {
       ipAddresses: ec2.IpAddresses.cidr('10.0.1.0/24'),
     });
 
+
+    // -------------------------------------------------------------
+    // IAM
     // I'll call 'homogeneousDataMigrations' HDM
     const hdmIamPolicy = new iam.Policy(this, 'hdmPolicy', {
       policyName: 'hdmPolicy',
@@ -126,5 +131,55 @@ export class DmsPg2PgStack extends cdk.Stack {
         new iam.ServicePrincipal(`dms.${REGION}.amazonaws.com`)
       ],
     }));
+
+
+    // -------------------------------------------------------------
+    // database
+    const dbSubnetGroup = new rds.SubnetGroup(this, 'dbSubnetGroup', {
+      description: 'Subnet group for RDS instance',
+      vpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PUBLIC,
+      },
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+    const dbSecurityGroup = new ec2.SecurityGroup(this, 'DBSecurityGroup', {
+      vpc,
+      allowAllOutbound: true,
+    });
+    dbSecurityGroup.addIngressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(5432),
+      'Allow inbound access to postgres'
+    );
+    const postgresEngine = rds.DatabaseInstanceEngine.postgres({
+      version: rds.PostgresEngineVersion.VER_15_4,
+    });
+    const postgresDbCreds = new secretsManager.Secret(this, 'dms-pg2pg-pg-creds', {
+      secretName: 'dms-pg2pg-pg-creds',
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({
+          username: 'postgres',
+        }),
+        excludePunctuation: true,
+        includeSpace: false,
+        generateStringKey: 'password',
+        passwordLength: 20,
+      }
+    });
+    const postgresDb = new rds.DatabaseInstance(this, 'dms-pg2pg-db', {
+      engine: postgresEngine,
+      instanceType: ec2.InstanceType.of(
+        ec2.InstanceClass.T3,
+        ec2.InstanceSize.MICRO
+      ),
+      vpc,
+      credentials: rds.Credentials.fromSecret(postgresDbCreds),
+      subnetGroup: dbSubnetGroup,
+      securityGroups: [dbSecurityGroup],
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      publiclyAccessible: true,
+      enablePerformanceInsights: true,
+    });
   }
 }
