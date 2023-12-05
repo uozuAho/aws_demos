@@ -4,6 +4,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsManager from 'aws-cdk-lib/aws-secretsmanager';
+import * as dms from 'aws-cdk-lib/aws-dms';
 
 const REGION = 'ap-southeast-2';
 
@@ -180,6 +181,14 @@ export class DmsPg2PgStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       publiclyAccessible: true,
       enablePerformanceInsights: true,
+    });
+
+
+    // -------------------------------------------------------------
+    // DMS stuff
+    const dmsSubnetGroup = new dms.CfnReplicationSubnetGroup(this, 'dms-pg2pg-sng', {
+      replicationSubnetGroupDescription: 'Subnet group for DMS replication instance',
+      subnetIds: vpc.privateSubnets.map(subnet => subnet.subnetId),
     });
   }
 }

@@ -22,6 +22,12 @@ echo export RDS_PG_DMS_USER_PASSWORD=CHOOSE_A_PASSWORD > .secrets
 ```
 
 # todo
-- follow as closely as possible. Run pg locally & port forward?
-    - up to https://docs.aws.amazon.com/dms/latest/sbs/dm-postgresql-step-4.html
+- test if i can connect to local pg from external psql (pi)
+    - add any needed notes about port forwarding etc
+    - try from vpn?
+- follow manual steps from here onwards https://docs.aws.amazon.com/dms/latest/sbs/dm-postgresql-step-5.html
+    - try creating iam instance profile in cdk - stack fails to delete with
+      manually created profile
+    - migration project still fails with 'internal error'? debug a bit, try again
+- automate from here onwards: https://docs.aws.amazon.com/dms/latest/sbs/dm-postgresql-step-5.html
 - have a look at https://github.com/aws-samples/dms-cdk/tree/main
