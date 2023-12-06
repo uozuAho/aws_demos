@@ -19,15 +19,21 @@ cd my_stuff
 echo export RDS_PG_DMS_USER_PASSWORD=CHOOSE_A_PASSWORD > .secrets
 . get_secrets.sh
 ./config_dms_user.sh
+# allow connections to your local postgres. This will likely need you to:
+# - forward external connections on port 5432 on your router to your local machine
+# - add an inbound rule on your local machine's firewall
 ```
 
 # todo
-- test if i can connect to local pg from external psql (pi)
-    - add any needed notes about port forwarding etc
-    - try from vpn?
 - follow manual steps from here onwards https://docs.aws.amazon.com/dms/latest/sbs/dm-postgresql-step-5.html
-    - try creating iam instance profile in cdk - stack fails to delete with
-      manually created profile
-    - migration project still fails with 'internal error'? debug a bit, try again
+    - 1st attempt: migration project  fails with 'internal error'?
+    - 2nd atttemp: migration project fails due to target logical replication not being enabled.
+        - attempt fix: manually create param group
+            - rds.logical_replication = 1
+            - max_logical_replication_workers = 5
+        - apply immediately to existing rds, restart migration project
+        - failed with same error. reboot rds & restart migration
+        - still failed. tODO: create param group in cdk
+            - if still fails, look at this: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PostgreSQL.Replication.ReadReplicas.html
 - automate from here onwards: https://docs.aws.amazon.com/dms/latest/sbs/dm-postgresql-step-5.html
 - have a look at https://github.com/aws-samples/dms-cdk/tree/main
