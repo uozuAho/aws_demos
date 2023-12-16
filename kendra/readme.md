@@ -7,7 +7,7 @@ architecture/workflow:
         |                                           ^
         ----> s3 -> comprehend (NLP) -> s3 ---------|
 
-# Go
+# Deploy the infra, run queries:
 ```sh
 pushd infra/kendra_demo
 npm i
@@ -22,6 +22,9 @@ pushd pipeline
 ./03-extract-comprehend-output.sh
 ./04-comprehend-to-kendra.sh
 ./05-clean-bucket.sh
+./06-build-index.sh
+# todo: query the index! https://docs.aws.amazon.com/kendra/latest/dg/tutorial-search-metadata-query-kendra.html
+# just search using the aws console
 
 # when you're done
 cdk destroy
