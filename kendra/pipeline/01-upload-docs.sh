@@ -5,7 +5,8 @@
 #   https://docs.aws.amazon.com/kendra/latest/dg/samples/tutorial-dataset.zip
 # unzip temp/tutorial-dataset.zip -d temp/
 
-BUCKETNAME=$(aws s3api list-buckets --query 'Buckets[].Name' --output text | tr '\t' '\n' | grep -i kendra)
+BUCKETNAME=$(aws s3api list-buckets --query 'Buckets[].Name' \
+  --output text | tr '\t' '\n' | grep -i kendra)
 
 aws s3api put-object \
   --bucket $BUCKETNAME \
