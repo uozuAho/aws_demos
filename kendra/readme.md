@@ -22,4 +22,7 @@ pushd pipeline
 ./03-extract-comprehend-output.sh
 ./04-comprehend-to-kendra.sh
 ./05-clean-bucket.sh
+
+# when you're done
+cdk destroy
 ```
