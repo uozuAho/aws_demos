@@ -83,4 +83,4 @@ if __name__ == "__main__":
     parser.add_argument('--filepath', required=True, help='Filepath to the Comprehend output file')
     parser.add_argument('--meta_folder', required=True, help='Filepath to the metadata directory')
     args = parser.parse_args()
-    main(args)
+    main(**vars(args))
