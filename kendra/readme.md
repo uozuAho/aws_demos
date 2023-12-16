@@ -21,4 +21,5 @@ pushd pipeline
 # wait for job to complete, should have created an output/ dir in s3
 ./03-extract-comprehend-output.sh
 ./04-comprehend-to-kendra.sh
+./05-clean-bucket.sh
 ```
