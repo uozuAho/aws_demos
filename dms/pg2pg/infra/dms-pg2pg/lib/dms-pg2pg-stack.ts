@@ -168,13 +168,15 @@ export class DmsPg2PgStack extends cdk.Stack {
         passwordLength: 20,
       }
     });
-    const postgresParameterGroup = new rds.ParameterGroup(this, 'dms-pg2pg-tgt-params', {
-      description: 'Settings for target postgres database',
-      engine: postgresEngine,
-      parameters: {
-        'rds.logical_replication ': '1',
-      },
-    });
+    // u have to set this manually. CDK fails to create param group, it doesn't
+    // like rds.logical_replication
+    // const postgresParameterGroup = new rds.ParameterGroup(this, 'dms-pg2pg-tgt-params', {
+    //   description: 'Settings for target postgres database',
+    //   engine: postgresEngine,
+    //   parameters: {
+    //     'rds.logical_replication ': '1',
+    //   },
+    // });
     const postgresDb = new rds.DatabaseInstance(this, 'dms-pg2pg-db', {
       engine: postgresEngine,
       instanceType: ec2.InstanceType.of(
@@ -188,7 +190,7 @@ export class DmsPg2PgStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       publiclyAccessible: true,
       enablePerformanceInsights: true,
-      parameterGroup: postgresParameterGroup,
+      // parameterGroup: postgresParameterGroup,
     });
 
 
