@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsManager from 'aws-cdk-lib/aws-secretsmanager';
@@ -88,5 +89,24 @@ export class GlueDemoStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       publiclyAccessible: true,
     });
+
+    // glue stuff
+    dbSecurityGroup.addIngressRule(
+      dbSecurityGroup,
+      ec2.Port.tcpRange(0, 65535),
+      'Allow glue to access postgres'
+    );
+    const glueRole = new iam.Role(this, 'glue-role', {
+      assumedBy: new iam.ServicePrincipal('glue.amazonaws.com'),
+      managedPolicies: [
+        iam.ManagedPolicy.fromManagedPolicyArn(
+          this,
+          'glue-service-policy',
+          "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+        ),
+      ],
+    });
+    srcDbCreds.grantRead(glueRole);
+    tgtDbCreds.grantRead(glueRole);
   }
 }
