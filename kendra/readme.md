@@ -9,4 +9,6 @@ npm i
 cdk deploy
 popd
 ./fill_bucket.sh
+./run_comprehend.sh
+# wait for job to complete, should have created an output/ dir in s3
 ```
