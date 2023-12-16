@@ -2,6 +2,11 @@
 
 Built following https://docs.aws.amazon.com/kendra/latest/dg/tutorial-search-metadata.html
 
+architecture/workflow:
+    text docs ---------------------------------> kendra
+        |                                           ^
+        ----> s3 -> comprehend (NLP) -> s3 ---------|
+
 # Go
 ```sh
 pushd infra/kendra_demo
