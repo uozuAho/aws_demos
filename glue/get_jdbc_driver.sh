@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Get a recent JDBC driver to use with Glue. For some reason, glue uses a very
+# old driver that fails to connect to postgres.
 
 if [ ! -f temp/postgresql-42.7.1.jar ]; then
     mkdir -p temp

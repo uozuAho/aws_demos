@@ -95,6 +95,7 @@ export class GlueDemoStack extends cdk.Stack {
     // glue stuff
     const glueBucket = new s3.Bucket(this, 'glue-bucket', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
     });
     const s3_endpoint = new ec2.GatewayVpcEndpoint(this, 'vpc-endpoint', {
       vpc,
@@ -125,5 +126,41 @@ export class GlueDemoStack extends cdk.Stack {
     });
     srcDbCreds.grantRead(glueRole);
     tgtDbCreds.grantRead(glueRole);
+    const srcGlueConnection = new glue.CfnConnection(this, 'src-glue-connection', {
+      catalogId: this.account,
+      connectionInput: {
+        connectionType: 'JDBC',
+        connectionProperties: {
+          JDBC_CONNECTION_URL: `jdbc:postgresql://${srcDb.dbInstanceEndpointAddress}:${srcDb.dbInstanceEndpointPort}/postgres`,
+          JDBC_ENFORCE_SSL: 'false',
+          SECRET_ID: srcDbCreds.secretArn,
+        },
+        name: 'src-glue-connection',
+        physicalConnectionRequirements: {
+          availabilityZone: vpc.availabilityZones[0],
+          securityGroupIdList: [dbSecurityGroup.securityGroupId],
+          subnetId: vpc.publicSubnets[0].subnetId,
+        },
+      },
+    });
+    const tgtGlueConnection = new glue.CfnConnection(this, 'tgt-glue-connection', {
+      catalogId: this.account,
+      connectionInput: {
+        connectionType: 'JDBC',
+        connectionProperties: {
+          JDBC_CONNECTION_URL: `jdbc:postgresql://${tgtDb.dbInstanceEndpointAddress}:${tgtDb.dbInstanceEndpointPort}/postgres`,
+          JDBC_ENFORCE_SSL: 'false',
+          SECRET_ID: tgtDbCreds.secretArn, // todo: this didn't work
+          JDBC_DRIVER_JAR_URI: glueBucket.s3UrlForObject('jdbc/postgresql-42.7.1.jar'), // todo: this didn't work
+            // maybe glue role doesn't have access to the bucket?
+        },
+        name: 'tgt-glue-connection',
+        physicalConnectionRequirements: {
+          availabilityZone: vpc.availabilityZones[0],
+          securityGroupIdList: [dbSecurityGroup.securityGroupId],
+          subnetId: vpc.publicSubnets[0].subnetId,
+        },
+      },
+    });
   }
 }
