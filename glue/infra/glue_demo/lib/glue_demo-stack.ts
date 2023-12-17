@@ -4,6 +4,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as secretsManager from 'aws-cdk-lib/aws-secretsmanager';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as glue from 'aws-cdk-lib/aws-glue';
 
 export class GlueDemoStack extends cdk.Stack {
@@ -92,14 +93,20 @@ export class GlueDemoStack extends cdk.Stack {
     });
 
     // glue stuff
+    const glueBucket = new s3.Bucket(this, 'glue-bucket', {
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
     const s3_endpoint = new ec2.GatewayVpcEndpoint(this, 'vpc-endpoint', {
       vpc,
       service: new ec2.GatewayVpcEndpointAwsService('s3'),
-      subnets: [
-        {
-          subnetType: ec2.SubnetType.PUBLIC,
-        },
-      ],
+      subnets: [{subnetType: ec2.SubnetType.PUBLIC}],
+    });
+    // because glue can't access the public internet, endpoints are needed for
+    // external AWS services
+    const secretsManagerEndpoint = new ec2.InterfaceVpcEndpoint(this, 'secrets-manager-endpoint', {
+      vpc,
+      service: new ec2.InterfaceVpcEndpointAwsService('secretsmanager'),
+      subnets: {subnetType: ec2.SubnetType.PUBLIC},
     });
     dbSecurityGroup.addIngressRule(
       dbSecurityGroup,

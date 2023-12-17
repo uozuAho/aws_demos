@@ -6,4 +6,5 @@ npm i
 cdk deploy
 popd
 ./seed_src_db.sh
+./get_jdbc_driver.sh
 ```
