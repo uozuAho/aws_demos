@@ -44,7 +44,7 @@ export class MwaaHelloStack extends cdk.Stack {
       //   },
       // },
       maxWorkers: 2,
-      minWorkers: 0,
+      minWorkers: 1,
       networkConfiguration: {
         securityGroupIds: [securityGroup.securityGroupId],
         subnetIds: vpc.publicSubnets.map((subnet) => subnet.subnetId),
