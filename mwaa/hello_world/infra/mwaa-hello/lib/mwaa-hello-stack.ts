@@ -23,11 +23,19 @@ export class MwaaHelloStack extends cdk.Stack {
     securityGroup.addIngressRule(securityGroup, ec2.Port.allTraffic(),
       "allow all traffic from within the security group");
 
+    const mwaaExecutionRole = new cdk.aws_iam.Role(this, 'MwaaExecutionRole', {
+      assumedBy: new cdk.aws_iam.ServicePrincipal('airflow.amazonaws.com'),
+      managedPolicies: [
+        cdk.aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonMWAAExecutionRolePolicy'),
+      ],
+    });
+
     const mwaaEnvironment = new cdk.aws_mwaa.CfnEnvironment(this, 'MwaaEnvironment', {
       name: 'mwaa-hello',
       // airflowVersion: '2.0.2', // latest if omitted
       dagS3Path: `dags`,
       environmentClass: 'mw1.small',
+      executionRoleArn: mwaaExecutionRole.roleArn,
       // executionRoleArn: 'arn:aws:iam::123456789012:role/airflow-role',
       // loggingConfiguration: {
       //   taskLogs: {
