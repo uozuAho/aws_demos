@@ -15,5 +15,23 @@ export class FargateTaskHelloStack extends cdk.Stack {
     const ecsCluster = new ecs.Cluster(this, 'EcsCluster', {
       vpc: vpc,
     });
+
+    const helloTaskDef = new ecs.FargateTaskDefinition(this, 'HelloTask', {
+      cpu: 256,
+      memoryLimitMiB: 512,
+      family: 'HelloFargateTask',
+    });
+    helloTaskDef.addContainer('HelloContainer', {
+      containerName: 'AlpineHelloContainer',
+      image: ecs.ContainerImage.fromRegistry('public.ecr.aws/docker/library/alpine:edge'),
+      essential: true,
+      command: ['echo', 'Hello, World! My boop is ${MY_BOOP}'],
+      environment: {
+        MY_BOOP: 'boop',
+      },
+      logging: new ecs.AwsLogDriver({
+        streamPrefix: 'HelloFargateTask',
+      }),
+    });
   }
 }
