@@ -2,6 +2,7 @@
 
 ```sh
 cdk deploy
+cd ../..
+# configure the variables in run_task.sh, then run:
+./run_task.sh
 ```
-
-Run the task from the ecs console
