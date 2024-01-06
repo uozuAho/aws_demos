@@ -1,20 +1,27 @@
 # AWS MWAA hello world
 
+WIP: gave up for now, env fails to create after ~1 hour. Works fine manually. Meh.
+
 Built following https://docs.aws.amazon.com/mwaa/latest/userguide/vpc-create.html
 Also used https://github.com/aws-samples/cdk-amazon-mwaa-cicd
 
 NOTE: MWAA environment has a constant per-hour cost. Destroy this demo when
 you're done.
 
+# quick start
+```sh
+cdk deploy    # takes ~30min
+```
+
 # todo
 - finish deploying infra: https://docs.aws.amazon.com/mwaa/latest/userguide/create-environment.html
-    - deployment currently breaks with 'Unable to read mwaahellostack-bucket83908e77-yxuy0swfkcfr/requirements.txt'
-        - does the bucket & contents have to be created first?
-            - or, just don't specify requirements.txt in cfn
     - is it worth doing this with CDK?
+        - nope, fails after deploying for 1 hour, no reason
+    - deploy mwaa env manually, do the rest with cdk?
 - get access: https://docs.aws.amazon.com/mwaa/latest/userguide/manage-access.html
     - https://docs.aws.amazon.com/mwaa/latest/userguide/access-airflow-ui.html
 - run a dag: https://docs.aws.amazon.com/mwaa/latest/userguide/working-dags.html
+- try dbt: https://docs.aws.amazon.com/mwaa/latest/userguide/samples-dbt.html
 
 iam policy created by mwaa console env builder:
 ```json
